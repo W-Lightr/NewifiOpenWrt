@@ -1,0 +1,59 @@
+name: 编译 NewifiD2 OpenWrt
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      ssh:
+        description: 'SSH connection to Actions'
+        required: true
+        default: 'false'
+  watch:
+    types: [started]
+env:
+  REPO_URL: https://github.com/coolsnowwolf/lede
+  # CONFIG_FILE: Configs/d-team_newifi-d2.config
+  # DIY_SCRIPT: Scripts/AutoBuild_DiyScript.sh
+  # FUNCTION_SCRIPT: Scripts/AutoBuild_Function.sh
+  # UPLOAD_RELEASE: true
+  # UPLOAD_FIRMWARE: false
+  # UPLOAD_BIN_DIR: false
+  # REMOVE_OLD_RELEASE: false
+  # REMOVE_WORKFLOW_RUNS: true
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+    - name: 准备更新依赖
+      run: |
+        sudo apt-get update
+        sudo apt-get -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch python3 python2.7 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs git-core gcc-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler g++-multilib antlr3 gperf wget curl swig rsync
+    - name: 克隆仓库
+      run: |
+        git clone $REPO_URL
+        cd lede
+        ./scripts/feeds update -a
+        ./scripts/feeds install -a
+    - name: 编译
+      run: |
+        cd openwrt
+        make defconfig
+    - name: SSH connection to Actions
+      uses: P3TERX/ssh2actions@v1.0.0
+      if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
+      env:
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+    - name: Download package
+      run: |
+        cd lede && make -j8 download V=s 
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+    - name: Build
+      run: |
+        cd lede
+        make -j2 V=s
+    - name : Upload artifact
+      uses: actions/upload-artifact@master
+      with:
+        name: OpenWrt
+        path: lede/bin
