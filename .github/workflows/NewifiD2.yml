@@ -11,7 +11,7 @@ on:
     types: [started]
 env:
   REPO_URL: https://github.com/coolsnowwolf/lede
-  # CONFIG_FILE: Configs/d-team_newifi-d2.config
+  CONFIG_FILE: d2.config
   # DIY_SCRIPT: Scripts/AutoBuild_DiyScript.sh
   # FUNCTION_SCRIPT: Scripts/AutoBuild_Function.sh
   # UPLOAD_RELEASE: true
@@ -37,6 +37,10 @@ jobs:
     #   run: |
     #     cd openwrt
     #     make defconfig
+    - name: 导入配置
+      run: |
+        [ -f $CONFIG_FILE ] && mv $CONFIG_FILE lede/.config
+        
     - name: SSH connection to Actions
       uses: P3TERX/ssh2actions@v1.0.0
       if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
@@ -45,15 +49,17 @@ jobs:
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
     - name: Download package
       run: |
-        cd lede && make -j8 download V=s 
-        find dl -size -1024c -exec ls -l {} \;
+        cd lede 
+        make defconfig
+        make download -j$(nproc) V=s
         find dl -size -1024c -exec rm -f {} \;
-    - name: Build
+        
+    - name: 编译
       run: |
         cd lede
-        make -j2 V=s
+        make -j$(nproc) || make -j1 V=s
     - name : Upload artifact
       uses: actions/upload-artifact@master
       with:
-        name: OpenWrt
+        name: Newifi3-d2
         path: lede/bin
