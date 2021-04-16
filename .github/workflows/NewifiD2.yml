@@ -1,3 +1,5 @@
+# @乘风小栈
+
 name: 编译 NewifiD2 OpenWrt
 on:
   repository_dispatch:
@@ -13,13 +15,7 @@ env:
   REPO_URL: https://github.com/coolsnowwolf/lede
   CONFIG_FILE: config/d2.config
   UPLOAD_RELEASE: true
-  # DIY_SCRIPT: Scripts/AutoBuild_DiyScript.sh
-  # FUNCTION_SCRIPT: Scripts/AutoBuild_Function.sh
-  # UPLOAD_RELEASE: true
-  # UPLOAD_FIRMWARE: false
-  # UPLOAD_BIN_DIR: false
-  # REMOVE_OLD_RELEASE: false
-  # REMOVE_WORKFLOW_RUNS: true
+  
 jobs:
   build:
     runs-on: ubuntu-18.04
@@ -97,8 +93,32 @@ jobs:
       run: |
         cd lede
         make -j$(nproc) || make -j1 V=s
+    
+    - name: CD
+      run: |
+        cd lede/bin/targets/ramips/mt7621
+        mkdir -p op
+        mv ./openwrt-ramips.* ./op
+
     - name : Upload artifact
       uses: actions/upload-artifact@master
       with:
         name: Newifi3-d2
-        path: lede/bin/targets/ramips/mt7621
+        path: lede/bin/targets/ramips/mt7621/op
+
+    - name: Upload Firmware to Releases
+      uses: softprops/action-gh-release@v1
+      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      env:
+        GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      with:
+        tag_name: AutoUpdate
+        body_path: update_log.txt
+        files: lede/bin/targets/ramips/mt7621/op/*
+    
+    - name: Remove workflow runs
+      uses: GitRML/delete-workflow-runs@main
+      if: env.REMOVE_WORKFLOW_RUNS == 'true' && !cancelled()
+      with:
+        retain_days: 1
+        keep_minimum_runs: 3
