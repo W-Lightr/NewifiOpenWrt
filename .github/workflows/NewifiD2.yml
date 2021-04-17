@@ -98,7 +98,8 @@ jobs:
       run: |
         cd lede/bin/targets/ramips/mt7621
         mkdir -p op
-        mv ./openwrt-ramips.* ./op
+        chmod 766 op
+        mv ./openwrt-ramips-* ./op
 
     - name : Upload artifact
       uses: actions/upload-artifact@master
@@ -113,7 +114,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
       with:
         tag_name: AutoUpdate
-        body_path: update_log.txt
         files: lede/bin/targets/ramips/mt7621/op/*
     
     - name: Remove workflow runs
