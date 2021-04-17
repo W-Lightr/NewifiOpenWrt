@@ -82,6 +82,12 @@ jobs:
       env:
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+    - name: Theme
+      run: |
+        cd lede/package/lean 
+        rm -rf luci-theme-argon
+        git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon.git
+    
     - name: Download package
       run: |
         cd lede 
@@ -98,7 +104,8 @@ jobs:
       run: |
         cd lede/bin/targets/ramips/mt7621
         mkdir -p op
-        mv ./openwrt-ramips.* ./op
+        chmod 766 op
+        mv ./openwrt-ramips-* ./op
 
     - name : Upload artifact
       uses: actions/upload-artifact@master
@@ -112,8 +119,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
       with:
-        tag_name: AutoUpdate
-        body_path: update_log.txt
+        tag_name: Newifi3-D2
         files: lede/bin/targets/ramips/mt7621/op/*
     
     - name: Remove workflow runs
