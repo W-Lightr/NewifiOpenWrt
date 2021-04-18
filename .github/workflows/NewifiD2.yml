@@ -96,7 +96,7 @@ jobs:
         find dl -size -1024c -exec rm -f {} \;
         
     - name: 编译
-      run: |
+      run: |    
         cd lede
         make -j$(nproc) || make -j1 V=s
     
