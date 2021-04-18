@@ -119,7 +119,11 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
       with:
+<<<<<<< HEAD
         tag_name: Newifi3-D2
+=======
+        tag_name: AutoUpdate
+>>>>>>> 4e1e5255bd86782442cd3869805c5d3e15028398
         files: lede/bin/targets/ramips/mt7621/op/*
     
     - name: Remove workflow runs
