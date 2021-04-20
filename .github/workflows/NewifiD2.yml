@@ -15,6 +15,7 @@ env:
   REPO_URL: https://github.com/coolsnowwolf/lede
   CONFIG_FILE: config/d2.config
   UPLOAD_RELEASE: true
+  REMOVE_WORKFLOW_RUNS: true
   
 jobs:
   build:
@@ -107,11 +108,11 @@ jobs:
         chmod 766 op
         mv ./openwrt-ramips-* ./op
 
-    - name : Upload artifact
-      uses: actions/upload-artifact@master
-      with:
-        name: Newifi3-d2
-        path: lede/bin/targets/ramips/mt7621/op
+    # - name : Upload artifact
+    #   uses: actions/upload-artifact@master
+    #   with:
+    #     name: Newifi3-d2
+    #     path: lede/bin/targets/ramips/mt7621/op
 
     - name: Upload Firmware to Releases
       uses: softprops/action-gh-release@v1
@@ -119,6 +120,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
       with:
+        name: Newifi3-d2
+        body: 更新固件
         files: lede/bin/targets/ramips/mt7621/op/*
     
     - name: Remove workflow runs
