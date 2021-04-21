@@ -120,7 +120,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
       with:
-        name: Newifi3-d2
+        tag_name: NewifiD2-Update
         body: 更新固件
         files: lede/bin/targets/ramips/mt7621/op/*
     
