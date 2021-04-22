@@ -14,6 +14,7 @@ on:
 env:
   REPO_URL: https://github.com/coolsnowwolf/lede
   CONFIG_FILE: config/d2.config
+  CONFIG_FEEDS: config/feeds.conf.default
   UPLOAD_RELEASE: true
   REMOVE_WORKFLOW_RUNS: true
   
@@ -63,7 +64,10 @@ jobs:
       run: |
         git clone $REPO_URL lede
         ln -sf /workdir/lede $GITHUB_WORKSPACE/lede
-        
+    - name: FEEDS
+        run: |
+          [ -f $CONFIG_FEEDS ] && mv $CONFIG_FEEDS lede/feeds.conf.default
+
     - name: 更新/安装 Feeds
       run: |
         cd lede
