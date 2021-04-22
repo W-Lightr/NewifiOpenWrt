@@ -65,8 +65,8 @@ jobs:
         git clone $REPO_URL lede
         ln -sf /workdir/lede $GITHUB_WORKSPACE/lede
     - name: FEEDS
-        run: |
-          [ -f $CONFIG_FEEDS ] && mv $CONFIG_FEEDS lede/feeds.conf.default
+      run: |
+        [ -f $CONFIG_FEEDS ] && mv $CONFIG_FEEDS lede/feeds.conf.default
 
     - name: 更新/安装 Feeds
       run: |
