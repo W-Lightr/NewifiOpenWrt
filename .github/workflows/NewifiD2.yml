@@ -118,7 +118,14 @@ jobs:
     #   with:
     #     name: Newifi3-d2
     #     path: lede/bin/targets/ramips/mt7621/op
-
+    - name: Remove old Release
+      uses: dev-drprasad/delete-older-releases@v0.1.0
+      if: env.REMOVE_OLD_RELEASE == 'true' && !cancelled()
+      with:
+        keep_latest: 0
+        delete_tags: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
     - name: Upload Firmware to Releases
       uses: softprops/action-gh-release@v1
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
@@ -130,14 +137,7 @@ jobs:
         body: 更新固件
         files: lede/bin/targets/ramips/mt7621/op/*
     
-    - name: Remove old Release
-      uses: dev-drprasad/delete-older-releases@v0.1.0
-      if: env.REMOVE_OLD_RELEASE == 'true' && !cancelled()
-      with:
-        keep_latest: 0
-        delete_tags: true
-      env:
-        GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+    
     - name: Remove workflow runs
       uses: GitRML/delete-workflow-runs@main
       if: env.REMOVE_WORKFLOW_RUNS == 'true' && !cancelled()
